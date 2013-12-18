@@ -388,3 +388,7 @@ let getResponseAsync request = async {
 
 let getResponse request =
     getResponseAsync request |> Async.RunSynchronously
+
+let runOnResponseStream streamConsumer request =
+    use response = request |> toHttpWebrequest |> getResponseNoException |> Async.RunSynchronously
+    streamConsumer (response.GetResponseStream())
