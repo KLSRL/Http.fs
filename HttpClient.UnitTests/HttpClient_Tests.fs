@@ -125,3 +125,8 @@ let ``withCookie adds the cookie to the request`` () =
 [<Test>]
 let ``withAutoFollowRedirectsDisabled turns auto-follow off`` () =
     (createValidRequest |> withAutoFollowRedirectsDisabled).AutoFollowRedirects |> should equal false
+
+[<Test>]
+let ``withProxy sets proxy to request`` () =
+    let proxy = System.Net.WebProxy("proxy.com", 8080)
+    (createValidRequest |> withProxy proxy).Proxy.Value.GetProxy(Uri "http://google.com") |> should equal (Uri "http://proxy.com:8080")

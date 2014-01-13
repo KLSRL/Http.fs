@@ -101,6 +101,7 @@ type Request = {
     Body: string option
     QueryStringItems: NameValue list option
     Cookies: NameValue list option
+    Proxy: IWebProxy option
 }
 
 type Response = {
@@ -209,6 +210,7 @@ let createRequest httpMethod url = {
     Body = None;
     QueryStringItems = None;
     Cookies = None;
+    Proxy = None;
     }
 
 let withCookiesDisabled request = 
@@ -238,6 +240,9 @@ let withCookie cookie request =
     if not request.CookiesEnabled then failwithf "Cannot add cookie %A - cookies disabled" cookie.name
     {request with Cookies = request.Cookies |> append cookie}
 
+let withProxy proxy request =
+    {request with Proxy = Some proxy}
+
 let private toHttpWebrequest request =
 
     let url = request.Url + (request |> getQueryString)
@@ -258,6 +263,9 @@ let private toHttpWebrequest request =
     webRequest |> setCookies request.Cookies request.Url
 
     webRequest.KeepAlive <- true
+
+    if request.Proxy.IsSome then
+        webRequest.Proxy <- request.Proxy.Value
 
     if request.Body.IsSome then
         let bodyBytes = Encoding.GetEncoding(1252).GetBytes(request.Body.Value)
